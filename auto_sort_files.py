@@ -2,9 +2,8 @@ import os
 import time
 
 SORTINGDIR = r"C:\Users\blek\Desktop"
-PRINT_FAILED = False
+PRINT_FAILED = True
 FILESFILTER = {
-
     # Images
     ".bmp": "Images",
     ".png": "Images",
@@ -67,6 +66,13 @@ FILESFILTER = {
     ".swf":  "Executables\\Shockwave Flash",
     ".gadget":  "Executables\\Win7 gadgets",
     ".o": "Executables\\Object file",
+    ".com": "Executables\\MS-DOS .COM Executables",
+    
+    # System files
+    ".dll": "System files",
+    ".lib": "System files",
+    ".pdb": "System files",
+    ".scr": "System files",
 
     # Videos
     ".mp4": "Movies",
@@ -87,8 +93,7 @@ FILESFILTER = {
 
     # Other
     ".lnk": ".Programs",
-
-    
+    ".url": ".Programs",
 }
 IGNOREFILEPREFIX = "." # .file.txt - no sorting
                        #  file.txt - sorting allowed
@@ -97,7 +102,7 @@ def main() -> int:
     sortdir = SORTINGDIR
     moved = 0
     timestart = time.time()
-    f = open(SORTINGDIR + "\\.backup.md", "w+")
+    f = open(SORTINGDIR + f"\\{IGNOREFILEPREFIX}backup.md", "w+")
     st = ""
     st = "".join([ " - " + ff + "\n" for ff in os.listdir(SORTINGDIR) ])
     f.write("## DIRECTORY IMAGE BACKUP<br/>\n### Made by blek!<br/>\n---------------------------\nCurrent files/dirs:\n" + st)
@@ -107,8 +112,13 @@ def main() -> int:
         if (file.startswith(".")== False) and os.path.isdir(file) == False:
             try:
                 spl = file.split(".")
-                ext = "." + spl[len(spl)-1]
-                if (file.lower().endswith(ext)):
+                ext = "." + spl[len(spl)-1].lower()
+                isin = False
+                try:
+                    FILESFILTER[ext]
+                    isin = True
+                except Exception: 0
+                if isin:
                     path: str = os.path.join(sortdir, FILESFILTER[ext], file)
                     pathd: str = os.path.join(sortdir, FILESFILTER[ext])
                     file: str = os.path.join(sortdir, file)
@@ -123,9 +133,9 @@ def main() -> int:
             except Exception as e:
                 if PRINT_FAILED:
                     try:
-                        print("\nFailed to move \"" + file + "\":\n" + ''.join(e.args))
-                    except Exception:
-                        print("\nFailed to move \"" + file + "\":\n" + "No error description")
+                        print("\nFailed to move \"" + file + "\": " + ''.join(e.args))
+                    except Exception:0
+                        #print("\nFailed to move \"" + file + "\":\n" + "No error description")
     finishtime = time.time()
     print(f"Moved {moved} files in {float(int((finishtime - timestart) * 100)) / 100} seconds.")
 if __name__ == "__main__":
